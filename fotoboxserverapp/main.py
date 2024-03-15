@@ -5,6 +5,8 @@ from flask import (
 
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash, generate_password_hash
+
 
 from fotoboxserverapp.db import get_db
 
@@ -34,7 +36,6 @@ def pic(uuid, pic):
 @bp.route('/<string:uuid>', methods=('GET', 'POST'))
 def main(uuid):
     db = get_db()
-    theapikey = 'wasauchimmerichmussesbessermachen'
 
     feschtle = db.execute(
         'SELECT *'
@@ -57,7 +58,7 @@ def main(uuid):
 
     if request.method == 'POST':
         apikey = request.form['apikey']
-        if apikey != theapikey:
+        if not check_password_hash(current_app.config['API_KEY'], apikey):
             print(apikey, theapikey)
             abort(404)
 
