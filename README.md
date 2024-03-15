@@ -45,9 +45,13 @@ Notice: The application will respond with 404 when accessing the root page or an
 ## FAQ
 
 Q: The interface is ugly as hell!!!
+
 A: I suck at frontend-dev. So feel free to add CSS and custom stuff in templates. 
 
+
+
 Q: What about privacy? Who can see the pictures?
+
 A: Everybody who's in posession of the link can see the pictures. So make sure only people who are attending to your party know the link 
 
 
