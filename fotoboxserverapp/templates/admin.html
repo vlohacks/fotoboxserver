@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Feschtla</h1>
+<table>
+ <tr>
+    <td>uuid</td>
+    <td>Name</td>
+    <td>Aktion</td>
+ </tr>
+
+{% for fescht in feschtla %}
+<tr>
+   <td>{{ fescht['uuid'] }}</td>
+   <td>{{ fescht['name'] }}</td>
+   <td>
+    <a href= "{{ url_for('admin.delete', id=fescht['id']) }}" onclick="return confirm('Das Fescht wirklich löschen???')">löschen</a> | 
+    <a href= "{{ url_for('main.main', uuid=fescht['uuid']) }}" target="_blank">Bilder-URL</a> |
+    <a href= "{{ url_for('qr.qr', uuid=fescht['uuid']) }}" target="_blank">QR-Code</a>
+   </td>
+</tr>
+{% endfor %}
+</table>
+
+<h1>Fescht hinzufügen</h1>
+<form method="post">
+   <table>
+   <tr>
+       <td>Name:</td>
+       <td><input type="text" name="name" /></td>
+   </tr>
+   <tr>
+       <td colspan="2"><input type="submit" value="Hinzufügen"></td>
+   </tr>
+   </table>
+</form>
+
+
+{% endblock %}

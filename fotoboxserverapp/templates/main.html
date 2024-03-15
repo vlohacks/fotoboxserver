@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div id="top">
+<h1>Bilder von {{ feschtle['name'] }}</h1>
+</div>
+
+<div id="text">
+<p>
+
+{% for pic in pics %}
+    <div class="gallery">
+        <a target="_blank" href="{{ url_for('main.pic', uuid=feschtle['uuid'], pic=pic['filename'] )}}">
+          <img src="{{ url_for('main.pic', uuid=feschtle['uuid'], pic=pic['thumbname'] )}}" alt="Foto" width="600" height="400">
+        </a>
+        <div class="desc">{{ pic['created'] }}</div>
+      </div>    
+{% endfor %}      
+
+</p>
+
+</div>
+
+{% endblock %}
