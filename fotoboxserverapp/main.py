@@ -1,4 +1,4 @@
-from crypt import methods
+#from crypt import methods
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, make_response, current_app, send_file
 )
@@ -13,7 +13,7 @@ from fotoboxserverapp.db import get_db
 import time
 import os
 import re
-from PIL import Image
+from PIL import Image, ExifTags
 
 bp = Blueprint('main', __name__, url_prefix='/')
 
@@ -64,7 +64,16 @@ def main(uuid):
 
         filedata = request.files['filedata']
 
+        mergeimage = request.form['mergeimage']
+
         dir = os.path.join(current_app.config['UPLOAD_DIR'], uuid)
+
+        mergepath = None
+        if mergeimage:
+            mergepath = os.path.join(current_app.config['MERGE_PICS'], mergeimage)
+
+        if not os.path.isfile(mergepath):
+            mergepath = None
 
         if not os.path.isdir(dir):
             os.mkdir(dir)
@@ -72,19 +81,49 @@ def main(uuid):
         cnt = 0
         while True:
             timestr = time.strftime("%Y%m%d-%H%M%S")
-            filename = "{}-{:03d}.jpg".format(timestr, cnt) 
+            filename = "{}-{:03d}.jpg".format(timestr, cnt)
+            filename_orig = "{}-{:03d}-orig.jpg".format(timestr, cnt)
             thumbname = "{}-{:03d}-thn.jpg".format(timestr, cnt)
             filepath = os.path.join(dir, filename)
             thumbpath = os.path.join(dir, thumbname)
-            if (not os.path.isfile(filename)):
+            filepath_orig = os.path.join(dir, filename_orig)
+            if (not os.path.isfile(filepath)):
                 break
             cnt += 1
 
-        filedata.save(filepath)
+        filedata.save(filepath_orig)
 
         img = Image.open(filedata)
+
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation]=='Orientation':
+                break
+
+        exif = img._getexif()
+
+        if exif[orientation] == 3:
+            img = img.rotate(180, expand=True)
+        elif exif[orientation] == 6:
+            img = img.rotate(270, expand=True)
+        elif exif[orientation] == 7:
+            #img = img.mirror(img)
+            img = img.rotate(90, expand=True)
+        elif exif[orientation] == 8:
+            img = img.rotate(90, expand=True)
+
+        if mergepath:
+            img = img.convert("RGBA")
+            width, height = img.size
+            mergeimg = Image.open(mergepath)
+            mergeimg = mergeimg.resize((width, height), Image.LANCZOS)
+            img.alpha_composite(mergeimg, (0, 0))
+            img = img.convert("RGB")
+
+        img.save(filepath)
+
         img.thumbnail((400, 300))
         img.save(thumbpath)
+
 
         db.execute(
             'INSERT INTO pics'

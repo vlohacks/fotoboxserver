@@ -9,6 +9,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         DATABASE = os.path.join(app.instance_path, 'fotoboxapp.sqlite'),
         UPLOAD_DIR = os.path.join(app.instance_path, 'uploads'),
+        MERGE_PICS = os.path.join(app.instance_path, 'merge_pics'),
         SECRET_KEY = 'nope'
     )
 
@@ -20,6 +21,7 @@ def create_app(test_config=None):
     try:
         # create instance path and uploads dir
         os.makedirs(app.config['UPLOAD_DIR'])
+        os.makedirs(app.config['MERGE_PICS'])
     except OSError:
         pass
 
